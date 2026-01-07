@@ -1,6 +1,17 @@
 <?php
 
 use Digood\Sso\Services\SsoService;
+if(!function_exists('oss_user_is_signIn')){
+    /**
+     * 用户是否登录
+     * @return bool
+     */
+    function oss_user_is_signIn(): bool
+    {
+        return (new SsoService())->isSignIn();
+    }
+
+}
 
 if (!function_exists('oss_user_info')) {
     /**

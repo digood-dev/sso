@@ -23,7 +23,7 @@ class SsoMiddleware
      * @param mixed ...$roles
      * @return RedirectResponse|mixed
      */
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles): mixed
     {
         // 校验登录状态
         if (!$this->ssoService->isSignIn()) return Response::redirectToRoute('sso.sign-in');
