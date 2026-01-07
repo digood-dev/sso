@@ -3,7 +3,6 @@
 namespace Digood\Sso;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 
 class SsoServiceProvider extends ServiceProvider
 {
@@ -24,12 +23,12 @@ class SsoServiceProvider extends ServiceProvider
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
-    public function register()
+    public function register(): void
     {
         // 合并配置
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/mypackage.php',
-            'mypackage'
+            __DIR__ . '/../config/oss.php',
+            'oss'
         );
 
         // 绑定服务（可选）

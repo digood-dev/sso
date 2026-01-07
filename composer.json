@@ -1,12 +1,12 @@
 {
   "name": "digood/sso",
   "description": "Digood SSO Service",
-  "version": "1.0",
   "autoload": {
     "psr-4": {
       "Digood\\Sso\\": "src/"
     }
   },
+  "license": "MIT",
   "extra": {
     "laravel": {
       "providers": [
