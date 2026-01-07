@@ -4,8 +4,9 @@ namespace Digood\Sso\Http\Middleware;
 
 use Closure;
 use Digood\Sso\Services\SsoService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Response;
 
 class SsoMiddleware
 {
@@ -20,12 +21,12 @@ class SsoMiddleware
      * @param Request $request
      * @param Closure $next
      * @param mixed ...$roles
-     * @return Response
+     * @return RedirectResponse|mixed
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         // 校验登录状态
-        if (!$this->ssoService->isSignIn()) return response()->redirectRoute('sso.sign-in');
+        if (!$this->ssoService->isSignIn()) return Response::redirectToRoute('sso.sign-in');
 
         // 校验角色
         if (!empty($roles)) {
@@ -44,7 +45,7 @@ class SsoMiddleware
                 '<a href="' . route('sso.sign-in') . '">刷新</a>',
             ]);
 
-            if (!in_array(true, $roleConditions)) return response($msg, 500);// 权限不足
+            if (!in_array(true, $roleConditions)) return Response::make($msg, 500);// 权限不足
         }
 
         return $next($request);
