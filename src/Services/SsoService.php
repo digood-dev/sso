@@ -17,15 +17,15 @@ class SsoService
      */
     public function client(): LogtoClient
     {
-        $this->appId = config('logto.appId');
-        $this->appSecret = config('logto.appSecret');
+        $this->appId = config('oss.digood.appId');
+        $this->appSecret = config('oss.digood.appSecret');
 
         return new LogtoClient(
             new LogtoConfig(
-                endpoint: config('logto.endpoint'),
+                endpoint: config('oss.digood.endpoint'),
                 appId: $this->appId,
                 appSecret: $this->appSecret,
-                scopes: config('logto.scopes', ['profile', 'email', 'phone', 'username', 'picture', 'roles'])
+                scopes: config('oss.digood.scopes')
             ),
         );
     }

@@ -10,7 +10,7 @@ class SsoServiceProvider extends ServiceProvider
     {
         // 发布配置文件（可选）
         $this->publishes([
-            __DIR__ . '/../config/sso.php' => __DIR__ . '/config/sso.php',
+            __DIR__ . '/config/sso.php' => _config_path('sso.php'),
         ], 'digood-sso-config');
 
         // 加载路由
