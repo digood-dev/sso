@@ -25,8 +25,8 @@
   ],
   "require": {
     "php": "^8.1",
-    "illuminate/support": "^12.45",
-    "illuminate/http": "^12.45",
+    "illuminate/support": "*",
+    "illuminate/http": "*",
     "logto/sdk": "^0.3.0"
   }
 }
