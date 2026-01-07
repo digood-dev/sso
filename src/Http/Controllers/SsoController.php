@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 use Logto\Sdk\LogtoException;
 
 
@@ -38,10 +39,10 @@ class SsoController
             $this->logtoService->handleSignIn(); //处理登录回调
 
             // 检查登录前的访问页面
-            $beforeSignIn = $request->session()->get('redirect_to');// 是否设置的登录后跳转页面
+            $beforeSignIn = Session::get('redirect_to');// 是否设置的登录后跳转页面
             if (!empty($beforeSignIn)) {// 登录跳转到登录前访问的页面
-                $request->session()->remove('redirect_to');// 移除登录后跳转页面的配置值
-                return $beforeSignIn;
+                Session::remove('redirect_to');// 移除登录后跳转页面的配置值
+                return Response::redirectTo($beforeSignIn);
             }
 
         } catch (\Exception $e) {
@@ -49,7 +50,7 @@ class SsoController
             throw new \Exception('登录失败，请重试');
         }
 
-        return route('home');
+        return Response::redirectToRoute('home');
     }
 
     /**
