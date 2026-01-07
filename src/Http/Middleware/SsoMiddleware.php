@@ -24,10 +24,8 @@ class SsoMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $urlSignIn = $this->ssoService->getSignInUrl();// 登录跳转地址
-
         // 校验登录状态
-        if (!$this->ssoService->isSignIn()) return response()->redirectTo($urlSignIn);
+        if (!$this->ssoService->isSignIn()) return response()->redirectRoute('sso.sign-in');
 
         // 校验角色
         if (!empty($roles)) {
@@ -43,7 +41,7 @@ class SsoMiddleware
                 '<p>当前角色：' . implode(',', $this->ssoService->getUserRoles()) . '</p>',
                 '<p>用户标识：' . $this->ssoService->getUserId() . '</p>',
                 '<hr>',
-                '<a href="' . $urlSignIn . '">刷新</a>',
+                '<a href="' . route('sso.sign-in') . '">刷新</a>',
             ]);
 
             if (!in_array(true, $roleConditions)) return response($msg, 500);// 权限不足
