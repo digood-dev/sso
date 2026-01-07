@@ -1,0 +1,41 @@
+<?php
+
+namespace Digood\Sso;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+
+class SsoServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        // 发布配置文件（可选）
+        $this->publishes([
+            __DIR__ . '/../config/sso.php' => __DIR__ . '/config/sso.php',
+        ], 'digood-sso-config');
+
+        // 加载路由
+        $this->loadRoutesFrom(__DIR__ . '/routes/sso.php');
+
+        // 视图
+        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'mypackage');
+
+        // 迁移
+        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+    }
+
+    public function register()
+    {
+        // 合并配置
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/mypackage.php',
+            'mypackage'
+        );
+
+        // 绑定服务（可选）
+        $this->app->singleton('digood-sso.service', function ($app) {
+            return new Services\SsoService();
+        });
+    }
+
+}
