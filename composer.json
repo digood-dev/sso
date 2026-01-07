@@ -4,7 +4,10 @@
   "autoload": {
     "psr-4": {
       "Digood\\Sso\\": "src/"
-    }
+    },
+    "files": [
+      "src/Helper/OssHelper.php"
+    ]
   },
   "license": "MIT",
   "extra": {
