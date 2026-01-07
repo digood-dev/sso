@@ -14,7 +14,7 @@ class SsoServiceProvider extends ServiceProvider
         ], 'digood-sso-config');
 
         // 加载路由
-        $this->loadRoutesFrom(__DIR__ . '/routes/sso.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/sso.php');
 
         // 视图
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'mypackage');
@@ -27,7 +27,7 @@ class SsoServiceProvider extends ServiceProvider
     {
         // 合并配置
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/oss.php',
+            __DIR__ . '/../config/sso.php',
             'oss'
         );
 
