@@ -47,8 +47,8 @@
         {{--        </div>--}}
 
         <!-- 附加提示（可选） -->
-        <p class="mt-4 text-xs text-gray-500">
-
+        <p class="mt-4 text-xs text-green-600">
+            你正在申请访问其它子系统
         </p>
     </div>
 </div>
