@@ -19,10 +19,10 @@ class GoController
         $token = (new SsoService())->client()->getAccessToken();
         if (empty($token)) throw new \Exception('无法提取的你TOKEN，可能未登录或者从其它系统流转的登录态');
 
-        $redirect_to = $request->input('redirect_to');
+        $redirect_to = base64_decode($request->input('redirect_to'));
         $host = parse_url($redirect_to, PHP_URL_HOST);
 
-        $url =  sprintf(
+        $url = sprintf(
             'https://%s/sso/sign-in/by_token/%s?redirect_to=%s',
             $host, $token, base64_encode($redirect_to)
         );

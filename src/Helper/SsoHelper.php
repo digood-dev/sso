@@ -75,7 +75,7 @@ if (!function_exists('sso_go_sub_system_url')) {
      */
     function sso_go_sub_system_url(string $redirect_to): string
     {
-        return route('sso.go.sub-system', ['redirect_to' => $redirect_to]);
+        return route('sso.go.sub-system', ['redirect_to' => base64_encode($redirect_to)]);
     }
 
 }
