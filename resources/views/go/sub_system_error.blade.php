@@ -29,8 +29,9 @@
 
         <!-- 系统信息（可选，增强上下文） -->
         <div class="text-left bg-gray-50 rounded-lg p-3 mb-5 text-sm text-gray-700">
+            <p class="font-bold">可能的原因：</p>
             @foreach($reasons as $reason)
-                <p><span class="font-medium">{{$reason}}</p>
+                <p>* <span class="font-medium">{{$reason}}</p>
             @endforeach
         </div>
 
