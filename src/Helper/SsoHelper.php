@@ -29,7 +29,7 @@ if (!function_exists('sso_user_display')) {
     function sso_user_display()
     {
         $userInfo = sso_user_info();
-        return $userInfo['nickname'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
+        return $userInfo['nickname'] ?? $userInfo['name'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
 
     }
 }

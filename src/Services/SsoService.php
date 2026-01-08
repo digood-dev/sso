@@ -17,6 +17,7 @@ class SsoService
         $this->appId = config('sso.digood.appId');
         $this->appSecret = config('sso.digood.appSecret');
         $this->endpoint = config('sso.digood.endpoint');
+        $this->scopes = config('sso.digood.scopes', ['profile', 'email', 'phone', 'username', 'picture', 'roles']);
     }
 
     /**
@@ -29,7 +30,7 @@ class SsoService
                 endpoint: $this->endpoint,
                 appId: $this->appId,
                 appSecret: $this->appSecret,
-                scopes: config('oss.digood.scopes')
+                scopes: $this->scopes,
             ),
         );
     }
@@ -102,6 +103,7 @@ class SsoService
                 'id' => $info->sub,
                 'email' => $info->email ?? null,
                 'phone' => $info->phone_number ?? null,
+                'name' => $info->name ?? null,
                 'username' => $info->username ?? null,
                 'picture' => $info->picture ?? null,
                 'extra' => $info->extra ?? null,
