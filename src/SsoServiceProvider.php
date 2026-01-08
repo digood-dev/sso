@@ -28,7 +28,7 @@ class SsoServiceProvider extends ServiceProvider
         // 合并配置
         $this->mergeConfigFrom(
             __DIR__ . '/../config/sso.php',
-            'oss'
+            'sso'
         );
 
         // 绑定服务（可选）
