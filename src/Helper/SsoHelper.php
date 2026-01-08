@@ -75,7 +75,7 @@ if(!function_exists('sso_signin_sub_system_url')){
      */
     function sso_signin_sub_system_url(string $subSystemUrl): mixed
     {
-        return route('sso.sign-in.by_token', ['redirect_to' => $subSystemUrl]);
+        return route('sso.sign-in.by_token', ['redirect_to' => base64_encode($subSystemUrl)]);
     }
 
 }
