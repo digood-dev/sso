@@ -67,15 +67,19 @@ if (!function_exists('sso_user_is_digood')) {
     }
 }
 
-if(!function_exists('sso_signin_sub_system_url')){
+if (!function_exists('sso_signin_sub_system_url')) {
     /**
      * 生成进入子系统的URL
      * @param string $subSystemUrl
      * @return mixed
+     * @throws Exception
      */
     function sso_signin_sub_system_url(string $subSystemUrl): mixed
     {
-        return route('sso.sign-in.by_token', ['redirect_to' => base64_encode($subSystemUrl)]);
+        $token = (new SsoService())->client()->getAccessToken();
+        if (empty($token)) throw new \Exception('无法提取的你TOKEN，可能未登录或者从其它系统流转的登录态');
+
+        return route('sso.sign-in.by_token', ['token' => $token, 'redirect_to' => base64_encode($subSystemUrl)]);
     }
 
 }
