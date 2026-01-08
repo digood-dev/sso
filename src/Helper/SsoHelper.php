@@ -71,15 +71,20 @@ if (!function_exists('sso_signin_sub_system_url')) {
     /**
      * 生成进入子系统的URL
      * @param string $subSystemUrl
-     * @return mixed
+     * @return string
      * @throws Exception
      */
-    function sso_signin_sub_system_url(string $subSystemUrl): mixed
+    function sso_signin_sub_system_url(string $subSystemUrl): string
     {
         $token = (new SsoService())->client()->getAccessToken();
         if (empty($token)) throw new \Exception('无法提取的你TOKEN，可能未登录或者从其它系统流转的登录态');
 
-        return route('sso.sign-in.by_token', ['token' => $token, 'redirect_to' => base64_encode($subSystemUrl)]);
+        $host = parse_url($subSystemUrl, PHP_URL_HOST);
+
+        return sprintf(
+            'https://%s/sso/sign-in/by_token/%s?redirect_to=%s',
+            $host, $token, base64_encode($subSystemUrl)
+        );
     }
 
 }
