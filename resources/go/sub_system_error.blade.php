@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>多谷SSO系统提示</title>
     <!-- Tailwind CSS CDN -->
@@ -12,8 +12,10 @@
     <div class="p-6 text-center">
         <!-- 警告/信息图标 -->
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
         </div>
 
@@ -22,29 +24,30 @@
 
         <!-- 说明文案 -->
         <p class="text-gray-600 mb-4">
-            您未授权将系统与账户进行绑定。此操作不会对您的账户产生任何影响。
+            {{$title}}
         </p>
 
         <!-- 系统信息（可选，增强上下文） -->
         <div class="text-left bg-gray-50 rounded-lg p-3 mb-5 text-sm text-gray-700">
-            <p><span class="font-medium">系统名称：</span>{{request()->get('system_name')}}</p>
-            <p><span class="font-medium">系统描述：</span>{{request()->get('desc')}}</p>
+            @foreach($reasons as $reason)
+                <p><span class="font-medium">{{$reason}}</p>
+            @endforeach
         </div>
 
         <!-- 操作按钮 -->
         {{--        <div class="mt-4">--}}
-            {{--            <button--}}
-            {{--                type="button"--}}
-            {{--                class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition"--}}
-            {{--                onclick="window.location.href='/'"--}}
-            {{--            >--}}
-            {{--                返回控制台--}}
-            {{--            </button>--}}
-            {{--        </div>--}}
+        {{--            <button--}}
+        {{--                type="button"--}}
+        {{--                class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition"--}}
+        {{--                onclick="window.location.href='/'"--}}
+        {{--            >--}}
+        {{--                返回控制台--}}
+        {{--            </button>--}}
+        {{--        </div>--}}
 
         <!-- 附加提示（可选） -->
         <p class="mt-4 text-xs text-gray-500">
-            如需重新绑定，请前往系统设置页面发起授权。
+
         </p>
     </div>
 </div>
