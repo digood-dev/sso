@@ -32,7 +32,6 @@ if (!function_exists('sso_user_display')) {
         return $userInfo['nickname'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
 
     }
-
 }
 
 if (!function_exists('sso_user_id')) {
@@ -66,4 +65,17 @@ if (!function_exists('sso_user_is_digood')) {
     {
         return (new SsoService())->isRoleDigood();
     }
+}
+
+if(!function_exists('sso_signin_sub_system_url')){
+    /**
+     * 生成进入子系统的URL
+     * @param string $subSystemUrl
+     * @return mixed
+     */
+    function sso_signin_sub_system_url(string $subSystemUrl): mixed
+    {
+        return route('sso.sign-in.by_token', ['redirect_to' => $subSystemUrl]);
+    }
+
 }

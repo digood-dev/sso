@@ -45,7 +45,7 @@ class SsoController
 
         try {
             $userInfo = $this->ssoService->getUserInfo($token);// 直接使用父程序传递的token来获取用户信息
-            if (empty($userInfo)) return response('<h1>账户信息流转失败，请关闭页面重试！</h1>', 500);
+            if (empty($userInfo)) return response('<h1>账户流转失败，请关闭页面重试！</h1>', 500);
 
             $request->session()->put('sso_login', true);
             $request->session()->put('sso_userinfo', $userInfo);
@@ -57,7 +57,7 @@ class SsoController
             $res = json_decode($res, true);
 
             $messages = [
-                '<h1>账户信息流转校验失败，请关闭页面重试！' . '</h1>',
+                '<h1>账户信息校验失败，请关闭页面重试！' . '</h1>',
                 '<hr>',
                 '<p>Code:' . ($res['code'] ?? '') . '</p>',
                 '<p>Message:' . ($res['message'] ?? '') . '</p>',
@@ -121,15 +121,4 @@ class SsoController
 
         return Response::redirectTo($urlRedirect);
     }
-
-    /**
-     * 跳转到子系统地址
-     * @param string $subSystemUrl
-     * @return mixed
-     */
-    public function getSignInSubSystemUrl(string $subSystemUrl)
-    {
-        return route('sso.sign-in.by_token', ['redirect_to' => $subSystemUrl]);
-    }
-
 }
