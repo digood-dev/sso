@@ -76,6 +76,8 @@ if (!function_exists('sso_signin_sub_system_url')) {
      */
     function sso_signin_sub_system_url(string $subSystemUrl): string
     {
+        if (request()->session()->get('sso_login', false)) throw new \Exception('当前登录态来自其它系统流转，不支持继续流转至其它子系统');
+
         $token = (new SsoService())->client()->getAccessToken();
         if (empty($token)) throw new \Exception('无法提取的你TOKEN，可能未登录或者从其它系统流转的登录态');
 
