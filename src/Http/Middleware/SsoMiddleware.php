@@ -16,10 +16,22 @@ class SsoMiddleware
 
     }
 
-    private function doFatherTransLogin(string $access_token)
+    /**
+     * @param Request $request
+     * @param Closure $next
+     * @param string $access_token
+     * @return mixed
+     */
+    private function doFatherTransLogin(Request $request,Closure $next, string $access_token): mixed
     {
         try {
             $userInfo = $this->ssoService->getUserInfo($access_token);// 直接使用父程序传递的token来获取用户信息
+            if (empty($userInfo)) $messages = ['<h1>账户信息流转失败，请关闭页面重试！</h1>'];
+
+            $request->session()->put('oss_login', true);
+            $request->session()->put('oss_userinfo', $userInfo);
+
+            return $next($request);
 
         } catch (ClientException $e) {
             $res = $e->getResponse()->getBody()->getContents();
@@ -34,8 +46,6 @@ class SsoMiddleware
             ];
         }
 
-        if (empty($userInfo)) $messages = ['<h1>账户信息流转失败，请关闭页面重试！</h1>'];
-
         return response(implode(PHP_EOL, $messages ?? ['<h1>账户操作失败</h1>']));
     }
 
@@ -49,14 +59,17 @@ class SsoMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): mixed
     {
-        // 是否带有父程序token值(例如 Oauth嵌套进来)
-        $father_access_token = $request->get('father_access_token');
-        if (!empty($father_access_token)) return self::doFatherTransLogin($father_access_token);//使用父程序的token进行登录
+        // 登录校验
+        if (!$this->ssoService->isSignIn()) {// 未登录
+            // 远程SSO登录
+            $father_access_token = $request->get('father_access_token');// 携带远程TOKEN(例如 Oauth嵌套进来)
+            if (!empty($father_access_token)) return self::doFatherTransLogin($request,$next, $father_access_token);//使用父程序的token进行登录
 
-        // 校验登录状态
-        if (!$this->ssoService->isSignIn()) return Response::redirectToRoute('sso.sign-in');
+            // 本地SSO登录
+            return Response::redirectToRoute('sso.sign-in');
+        }
 
-        // 校验角色
+        // 角色校验
         if (!empty($roles)) {
             $roleConditions = [];
             foreach ($roles as $role) {

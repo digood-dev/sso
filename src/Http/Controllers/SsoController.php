@@ -55,15 +55,25 @@ class SsoController
 
     /**
      * 登出
+     * @param Request $request
      * @return RedirectResponse|\Illuminate\Http\Response
      */
-    public function sign_out(): \Illuminate\Http\Response|RedirectResponse
+    public function sign_out(Request $request): \Illuminate\Http\Response|RedirectResponse
     {
-        $urlHome = route('index');
+        $urlIndex = route('index');
         $urlSignIn = route('sso.sign-in');
 
+        if (!$this->logtoService->isSignIn()) return Response::redirectTo($urlIndex);// 未登录
+
+        // 远程SSO退出
+        if ($request->session()->get('oss_login', false)) {
+            $request->session()->remove('oss_login');
+            $request->session()->remove('oss_userinfo');
+            return Response::redirectTo($urlIndex);
+        }
+
         try {
-            $urlRedirect = $this->logtoService->getSignOutUrl($urlHome);
+            $urlRedirect = $this->logtoService->getSignOutUrl($urlIndex);
 
         } catch (LogtoException $e) {
             return Response::make($e->getMessage() . '<hr><a href="' . $urlSignIn . '">重试</a>', 500);
