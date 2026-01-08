@@ -6,23 +6,27 @@ use Illuminate\Support\Facades\Log;
 use Logto\Sdk\LogtoClient;
 use Logto\Sdk\LogtoConfig;
 use Logto\Sdk\LogtoException;
+use Logto\Sdk\Oidc\OidcCore;
 
 class SsoService
 {
-    protected string $appId;
-    protected string $appSecret;
+    protected string $appId, $appSecret, $endpoint;
+
+    public function __construct()
+    {
+        $this->appId = config('oss.digood.appId');
+        $this->appSecret = config('oss.digood.appSecret');
+        $this->endpoint = config('oss.digood.endpoint');
+    }
 
     /**
      * @return LogtoClient
      */
     public function client(): LogtoClient
     {
-        $this->appId = config('oss.digood.appId');
-        $this->appSecret = config('oss.digood.appSecret');
-
         return new LogtoClient(
             new LogtoConfig(
-                endpoint: config('oss.digood.endpoint'),
+                endpoint: $this->endpoint,
                 appId: $this->appId,
                 appSecret: $this->appSecret,
                 scopes: config('oss.digood.scopes')
@@ -36,6 +40,11 @@ class SsoService
     public function isSignIn(): bool
     {
         return self::client()->isAuthenticated();
+    }
+
+    public function getOidcCore()
+    {
+        return OidcCore::create(rtrim($this->endpoint, "/"));
     }
 
     /**
@@ -73,13 +82,18 @@ class SsoService
 
     /**
      * 获取用户信息
+     * @param string|null $accessToken | 留空则读取默认
      * @return array|false
      */
-    public function getUserInfo(): false|array
+    public function getUserInfo(string|null $accessToken = null): false|array
     {
         try {
-            $info = self::client()->getIdTokenClaims();// 本地令牌声明
-            //self::client()->fetchUserInfo();// 从端点获取用户信息
+            if(empty($accessToken)){// 本地用户资料
+                $info = self::client()->getIdTokenClaims();// 本地令牌声明
+
+            }else{// 远程用户资料
+                $info = self::getOidcCore()->fetchUserInfo($accessToken);// 实时从端点获取用户信息
+            }
 
             $data = [
                 'id' => $info->sub,
@@ -139,5 +153,4 @@ class SsoService
 
         return in_array(true, $userCondition);
     }
-
 }
