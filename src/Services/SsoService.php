@@ -14,9 +14,9 @@ class SsoService
 
     public function __construct()
     {
-        $this->appId = config('oss.digood.appId');
-        $this->appSecret = config('oss.digood.appSecret');
-        $this->endpoint = config('oss.digood.endpoint');
+        $this->appId = config('sso.digood.appId');
+        $this->appSecret = config('sso.digood.appSecret');
+        $this->endpoint = config('sso.digood.endpoint');
     }
 
     /**
@@ -88,7 +88,7 @@ class SsoService
      */
     public function getUserInfo(string|null $accessToken = null): false|array
     {
-        if (request()->hasSession() && request()->session()->has('oss_userinfo', false)) return request()->session()->get('oss_userinfo');
+        if (request()->session()->has('oss_userinfo', false)) return request()->session()->get('oss_userinfo');
 
         try {
             if (empty($accessToken)) {// 本地用户资料
