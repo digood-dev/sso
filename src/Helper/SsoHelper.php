@@ -1,7 +1,8 @@
 <?php
 
 use Digood\Sso\Services\SsoService;
-if(!function_exists('sso_user_is_signIn')){
+
+if (!function_exists('sso_user_is_signIn')) {
     /**
      * 用户是否登录
      * @return bool
@@ -22,6 +23,16 @@ if (!function_exists('sso_user_info')) {
     {
         return (new SsoService())->getUserInfo();
     }
+}
+
+if (!function_exists('sso_user_display')) {
+    function sso_user_display()
+    {
+        $userInfo = sso_user_info();
+        return $userInfo['nickname'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
+
+    }
+
 }
 
 if (!function_exists('sso_user_id')) {

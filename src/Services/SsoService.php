@@ -88,7 +88,7 @@ class SsoService
      */
     public function getUserInfo(string|null $accessToken = null): false|array
     {
-        if (request()->session()->has('sso_userinfo', false)) return request()->session()->get('sso_userinfo');
+        if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
 
         try {
             if (empty($accessToken)) {// 本地用户资料
