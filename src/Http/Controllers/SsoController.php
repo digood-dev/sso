@@ -41,14 +41,14 @@ class SsoController
     public function sign_in_by_token(Request $request)
     {
         $token = $request->route('token');
-        $redirect_to = $request->get('redirect_to');// 登录成功后需要跳转的地址(base64)
+        $redirect_to = $request->get('redirect_to', '/');// 登录成功后需要跳转的地址(base64)
 
         try {
             $userInfo = $this->ssoService->getUserInfo($token);// 直接使用父程序传递的token来获取用户信息
             if (empty($userInfo)) return response('<h1>账户信息流转失败，请关闭页面重试！</h1>', 500);
 
-            $request->session()->put('oss_login', true);
-            $request->session()->put('oss_userinfo', $userInfo);
+            $request->session()->put('sso_login', true);
+            $request->session()->put('sso_userinfo', $userInfo);
 
             return response()->redirectTo(base64_decode($redirect_to));
 
@@ -106,9 +106,9 @@ class SsoController
         if (!$this->ssoService->isSignIn()) return Response::redirectTo($urlIndex);// 未登录
 
         // 远程SSO退出
-        if ($request->session()->get('oss_login', false)) {
-            $request->session()->remove('oss_login');
-            $request->session()->remove('oss_userinfo');
+        if ($request->session()->get('sso_login', false)) {
+            $request->session()->remove('sso_login');
+            $request->session()->remove('sso_userinfo');
             return Response::redirectTo($urlIndex);
         }
 
@@ -122,9 +122,14 @@ class SsoController
         return Response::redirectTo($urlRedirect);
     }
 
-    public function goSubSystem(string $subSystemUrl)
+    /**
+     * 跳转到子系统地址
+     * @param string $subSystemUrl
+     * @return mixed
+     */
+    public function getSignInSubSystemUrl(string $subSystemUrl)
     {
-
+        return route('sso.sign-in.by_token', ['redirect_to' => $subSystemUrl]);
     }
 
 }

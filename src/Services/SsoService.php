@@ -39,7 +39,7 @@ class SsoService
      */
     public function isSignIn(): bool
     {
-        if (request()->hasSession() && request()->session()->get('oss_login', false)) return true;
+        if (request()->hasSession() && request()->session()->get('sso_login', false)) return true;
         return self::client()->isAuthenticated();
     }
 
@@ -88,7 +88,7 @@ class SsoService
      */
     public function getUserInfo(string|null $accessToken = null): false|array
     {
-        if (request()->session()->has('oss_userinfo', false)) return request()->session()->get('oss_userinfo');
+        if (request()->session()->has('sso_userinfo', false)) return request()->session()->get('sso_userinfo');
 
         try {
             if (empty($accessToken)) {// 本地用户资料
