@@ -10,9 +10,10 @@ class GoController
     /**
      * @param string $title
      * @param array $reasons
+     * @param array $solves
      * @return mixed
      */
-    private function viewError(string $title, array $reasons, array $solves = [])
+    private function viewError(string $title = '抱歉，操作失败！', array $reasons = [], array $solves = [])
     {
         return response()->view(
             'digood.sso::go.sub_system_error',

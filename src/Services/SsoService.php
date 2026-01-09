@@ -12,12 +12,17 @@ class SsoService
 {
     protected string $appId, $appSecret, $endpoint;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct()
     {
         $this->appId = config('sso.digood.appId');
         $this->appSecret = config('sso.digood.appSecret');
         $this->endpoint = config('sso.digood.endpoint');
         $this->scopes = config('sso.digood.scopes', ['profile', 'email', 'phone', 'username', 'picture', 'roles']);
+
+        if (empty($this->appId) || empty($this->appSecret)) throw new \Exception('Digood SSO 参数缺失，请检查！');
     }
 
     /**
@@ -44,6 +49,9 @@ class SsoService
         return self::client()->isAuthenticated();
     }
 
+    /**
+     * @return OidcCore
+     */
     public function getOidcCore()
     {
         return OidcCore::create(rtrim($this->endpoint, "/"));
