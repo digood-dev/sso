@@ -3,9 +3,11 @@
 namespace Digood\Sso\Services;
 
 use Illuminate\Support\Facades\Log;
+use Logto\Sdk\Constants\DirectSignInMethod;
 use Logto\Sdk\LogtoClient;
 use Logto\Sdk\LogtoConfig;
 use Logto\Sdk\LogtoException;
+use Logto\Sdk\Models\DirectSignInOptions;
 use Logto\Sdk\Oidc\OidcCore;
 
 class SsoService
@@ -67,6 +69,24 @@ class SsoService
         if (empty($callbackUrl)) $callbackUrl = route('sso.sign-in.callback');
 
         return self::client()->signIn($callbackUrl);
+    }
+
+    /**
+     * 登录连接（使用企业微信）
+     * @param string|null $callbackUrl
+     * @return string
+     */
+    public function getSignInByWeComUrl(string|null $callbackUrl = null): string
+    {
+        if (empty($callbackUrl)) $callbackUrl = route('sso.sign-in.callback');
+
+        return self::client()->signIn(
+            $callbackUrl,
+            directSignIn: new DirectSignInOptions(
+                method: DirectSignInMethod::social,
+                target: 'wecom'
+            )
+        );
     }
 
     /**
