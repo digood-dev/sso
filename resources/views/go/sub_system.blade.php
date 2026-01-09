@@ -28,14 +28,20 @@
     </style>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
+<!-- 主提示区域 -->
 <div class="text-center p-6 bg-white rounded-lg shadow-md max-w-md w-full">
     <div class="flex justify-center mb-4">
-        <div class="spinner"></div>
+        <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-500 border-t-transparent"></div>
     </div>
     <h1 class="text-xl font-semibold text-gray-800">正在进入{{$name}}...</h1>
-    <p class="text-gray-500 mt-2">请稍候，等待处理完毕页面自动跳转。</p>
-    <p class="text-gray-500 mt-2 font-sm">登录状态将会无缝流转</p>
+    <p class="text-gray-500 mt-2">请稍候，页面即将跳转。</p>
+    <p class="text-gray-500 mt-2">你的登录状态将会无缝流转</p>
 </div>
+
+<!-- 底部说明文字-->
+<p class="mt-6 text-xs text-gray-400">
+    该服务由 <span class="font-mono">{{$host}}</span> 子系统提供
+</p>
 
 <script>
     setTimeout(() => {

@@ -48,6 +48,6 @@ class GoController
             $host, $token, base64_encode($redirect_to)
         );
 
-        return response()->view('digood.sso::go.sub_system', ['url' => $url, 'name' => $name]);
+        return response()->view('digood.sso::go.sub_system', ['url' => $url, 'name' => $name, 'host' => $host]);
     }
 }

@@ -71,6 +71,7 @@ if (!function_exists('sso_go_sub_system_url')) {
     /**
      * 生成进入子系统的URL
      * @param string $redirect_to
+     * @param string $name
      * @return string
      */
     function sso_go_sub_system_url(string $redirect_to, string $name = '子系统'): string

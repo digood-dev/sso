@@ -13,5 +13,7 @@ Route::prefix('sso')
         Route::get('/sign-in/by_token/{token}', [SsoController::class, 'sign_in_by_token'])->name('sso.sign-in.by_token');// 其它子系统通过token来登录
         Route::get('/sign-in/callback', [SsoController::class, 'sign_in_callback'])->name('sso.sign-in.callback');
 
-        Route::get('/go/sub_system', [GoController::class, 'sub_system'])->name('sso.go.sub-system');
+
+        Route::get('/go/sub_system', [GoController::class, 'sub_system'])->name('sso.go.sub-system');// 跳转子系统
+
     });
