@@ -8,16 +8,33 @@ use Illuminate\Http\Request;
 class GoController
 {
     /**
+     * @param string $title
+     * @param array $reasons
+     * @return mixed
+     */
+    private function viewError(string $title, array $reasons, array $solves = [])
+    {
+        return response()->view(
+            'digood.sso::go.sub_system_error',
+            [
+                'title' => $title,
+                'reasons' => $reasons,
+                'solves' => $solves
+            ],
+            500);
+    }
+
+    /**
      * @param Request $request
      * @return mixed
      * @throws \Exception
      */
     function sub_system(Request $request)
     {
-        if ($request->session()->get('sso_login', false)) return response()->view('digood.sso::go.sub_system_error', ['title' => '无法流转至其它子系统', 'reasons' => ['当前登录态来自其它系统流转', '不支持继续流转至其它子系统']], 500);
+        if ($request->session()->get('sso_login', false)) return self::viewError('无法进入其它系统功能', ['未使用多谷SSO联合账户进行登录当前系统', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
 
         $token = (new SsoService())->client()->getAccessToken();
-        if (empty($token)) return response()->view('digood.sso::go.sub_system_error', ['title' => '无法读取你的联合账户Token密钥', 'reasons' => ['未使用SSO多谷联合账户进行登录', '从其它系统流转的登录态']], 500);
+        if (empty($token)) return self::viewError('此功能需要SSO联合账户权限', ['未使用多谷SSO联合账户进行登录当前系统', '无法读取你的联合账户Token密钥', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
 
         $redirect_to = base64_decode($request->input('redirect_to'));
         $host = parse_url($redirect_to, PHP_URL_HOST);
