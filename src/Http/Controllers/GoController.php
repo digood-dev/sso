@@ -31,10 +31,10 @@ class GoController
      */
     function sub_system(Request $request)
     {
-        if ($request->session()->get('sso_login', false)) return self::viewError('无法进入其它系统功能', ['未使用多谷SSO联合账户进行登录当前系统', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
+        if ($request->session()->get('sso_login', false)) return self::viewError('此功能需要SSO联合账户权限', ['未使用多谷SSO联合账户进行登录当前系统', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
 
         $token = (new SsoService())->client()->getAccessToken();
-        if (empty($token)) return self::viewError('此功能需要SSO联合账户权限', ['未使用多谷SSO联合账户进行登录当前系统', '无法读取你的联合账户Token密钥', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
+        if (empty($token)) return self::viewError('此功能需要SSO联合账户权限', ['无法读取你的联合账户Token密钥', '未使用多谷SSO联合账户进行登录当前系统', '从其它系统流转的登录态不支持二次流转'], ['重新使用多谷SSO方式登录']);
 
         $redirect_to = base64_decode($request->input('redirect_to'));
         $host = parse_url($redirect_to, PHP_URL_HOST);
