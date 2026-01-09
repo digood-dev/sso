@@ -73,9 +73,9 @@ if (!function_exists('sso_go_sub_system_url')) {
      * @param string $redirect_to
      * @return string
      */
-    function sso_go_sub_system_url(string $redirect_to): string
+    function sso_go_sub_system_url(string $redirect_to, string $name = '子系统'): string
     {
-        return route('sso.go.sub-system', ['redirect_to' => base64_encode($redirect_to)]);
+        return route('sso.go.sub-system', ['redirect_to' => base64_encode($redirect_to), 'name' => $name]);
     }
 
 }
