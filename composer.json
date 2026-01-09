@@ -27,6 +27,7 @@
     "php": "^8.1",
     "illuminate/support": "*",
     "illuminate/http": "*",
-    "logto/sdk": "^0.3.0"
+    "logto/sdk": "^0.3.0",
+    "laravel/framework": "*"
   }
 }
