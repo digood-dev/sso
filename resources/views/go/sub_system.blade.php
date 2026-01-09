@@ -27,7 +27,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen p-4">
 <!-- 主提示区域 -->
 <div class="text-center p-6 bg-white rounded-lg shadow-md max-w-md w-full">
     <div class="flex justify-center mb-4">
