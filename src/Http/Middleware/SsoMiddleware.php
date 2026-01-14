@@ -26,32 +26,26 @@ class SsoMiddleware
     public function handle(Request $request, Closure $next, ...$roles): mixed
     {
         // 登录校验
-        if (!$this->ssoService->isSignIn()) {
-            // 本地SSO登录
-            return Response::redirectToRoute('sso.sign-in');
-        }
+        if (!$this->ssoService->isSignIn()) return Response::redirectToRoute('sso.sign-in');// 跳转到本地SSO登录
+
+        if (empty($roles)) return $next($request);// 无需角色校验
 
         // 角色校验
-        if (!empty($roles)) {
-            $roleConditions = [];
-            foreach ($roles as $role) {
-                $roleConditions[] = $this->ssoService->isRole($role);
-            }
+        $msg = implode(PHP_EOL, [
+            '<h1>抱歉，你的角色或权限不足！</h1>',
+            '<p>开放角色：' . implode(',', $roles) . '</p>',
+            '<hr>',
+            '<p>当前角色：' . implode(',', $this->ssoService->getUserRoles()) . '</p>',
+            '<p>用户标识：' . $this->ssoService->getUserId() . '</p>',
+            '<hr>',
+            '<a href="' . route('sso.sign-in') . '">刷新</a>',
+        ]);
 
-            $msg = implode(PHP_EOL, [
-                '<h1>抱歉，你的角色或权限不足！</h1>',
-                '<p>开放角色：' . implode(',', $roles) . '</p>',
-                '<hr>',
-                '<p>当前角色：' . implode(',', $this->ssoService->getUserRoles()) . '</p>',
-                '<p>用户标识：' . $this->ssoService->getUserId() . '</p>',
-                '<hr>',
-                '<a href="' . route('sso.sign-in') . '">刷新</a>',
-            ]);
-
-            if (!in_array(true, $roleConditions)) return Response::make($msg, 500);// 权限不足
+        foreach ($roles as $role) {
+            if ($this->ssoService->isRole($role)) return $next($request);// 角色匹配
         }
 
-        return $next($request);
+        return Response::make($msg, 500);// 权限不足
     }
 
 }

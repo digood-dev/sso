@@ -54,7 +54,7 @@ class SsoService
     /**
      * @return OidcCore
      */
-    public function getOidcCore()
+    public function getOidcCore(): OidcCore
     {
         return OidcCore::create(rtrim($this->endpoint, "/"));
     }
@@ -120,10 +120,10 @@ class SsoService
         if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
 
         try {
-            if (empty($accessToken)) {// 本地用户资料
+            if (empty($accessToken)) {// 本地用户
                 $info = self::client()->getIdTokenClaims();// 本地令牌声明
 
-            } else {// 远程用户资料
+            } else {// 指定用户
                 $info = self::getOidcCore()->fetchUserInfo($accessToken);// 实时从端点获取用户信息
             }
 
