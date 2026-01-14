@@ -30,9 +30,10 @@ class SsoApiMiddleware
                 ->connectTimeout(10)
                 ->timeout(30)
                 ->asForm()
+                ->baseUrl(config('sso.digood.endpoint'))
                 ->post('/oidc/token', $params);
 
-            if ($result->failed()) return response_error('SSO验证失败，请重试');
+            if ($result->failed()) return response_error('SSO验证失败，请重试', $result->json());
 
             Cache::put(md5($sso_user_token), $result->json(), $result->json('expires_in') - 30);
 
