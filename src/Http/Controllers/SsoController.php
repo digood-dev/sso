@@ -6,6 +6,7 @@ use Digood\Sso\Services\SsoService;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
@@ -68,9 +69,13 @@ class SsoController
         return response('<h1>账户信息校验失败，请关闭页面重试！</h1>' . implode('', $messages), 500);
     }
 
-    public function sign_in_by_pat_token(Request $request){
-        $sso_pat_token = $request->route('sso_pat_token');
+    public function sign_in_by_pat(Request $request){
+        // 注入session用户信息
+        $key = $request->route('key');
 
+        // 检查用户信息
+        $data = Cache::get($key);
+        $pat_token = $data['sso_user_token'] ?? '';
     }
 
     /**
