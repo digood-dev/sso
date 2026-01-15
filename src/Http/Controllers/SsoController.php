@@ -57,17 +57,14 @@ class SsoController
             $res = json_decode($res, true);
 
             $messages = [
-                '<h1>账户信息校验失败，请关闭页面重试！' . '</h1>',
                 '<hr>',
                 '<p>Code:' . ($res['code'] ?? '') . '</p>',
                 '<p>Message:' . ($res['message'] ?? '') . '</p>',
                 '<p>Description:' . ($res['description'] ?? '') . '</p>'
             ];
-
-            return response(implode('', $messages), 500);
         }
 
-        return response('<h1>账户操作失败</h1>', 500);
+        return response('<h1>账户信息校验失败，请关闭页面重试！</h1>' . implode('', $messages), 500);
     }
 
     /**
