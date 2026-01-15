@@ -35,6 +35,7 @@ class SsoController
     }
 
     /**
+     * 登录（不透明Token方式）
      * @param Request $request
      * @return mixed
      */
@@ -65,6 +66,11 @@ class SsoController
         }
 
         return response('<h1>账户信息校验失败，请关闭页面重试！</h1>' . implode('', $messages), 500);
+    }
+
+    public function sign_in_by_pat_token(Request $request){
+        $sso_pat_token = $request->route('sso_pat_token');
+
     }
 
     /**
