@@ -105,10 +105,11 @@ class SsoController
             ->baseUrl(config('sso.digood.endpoint'))
             ->get('/oidc/me');
 
-        if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试', 500);
+        if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试' . $result->json('error_description'), 500);
 
         // 注入Session
-
+        $request->session()->put('sso_login', true);
+        $request->session()->put('sso_userinfo', $result->json());
 
         if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
 

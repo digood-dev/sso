@@ -16,9 +16,6 @@ class SsoPatService
      */
     public function getAccessTokenRaw(string $pat_token)
     {
-        $cacheKey = 'pat_get_accesstoken_' . md5($pat_token);
-        if (Cache::has($cacheKey)) return Cache::get($cacheKey);// 此PAT token已校验通过
-
         $params = [
             'grant_type' => 'urn:ietf:params:oauth:grant-type:token-exchange',
             'client_id' => config('sso.digood.appId'),
@@ -27,6 +24,9 @@ class SsoPatService
             'subject_token_type' => 'urn:logto:token-type:personal_access_token',
             'scope' => implode(' ', config('sso.digood.scopes'))
         ];
+
+        $cacheKey = 'pat_exchange_token_' . md5(json_encode($params));
+        if (Cache::has($cacheKey)) return Cache::get($cacheKey);// 此PAT token已校验通过
 
         $result = Http::withoutVerifying()
             ->connectTimeout(10)
