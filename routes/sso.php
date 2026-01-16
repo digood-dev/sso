@@ -21,8 +21,10 @@ Route::prefix('sso')
         });
 
         // Api层面
-        Route::middleware(SsoMiddleware::class)->prefix('api')->group(function () {
-            Route::get('sign-in/by_pat_token', [SsoApiController::class, 'sign_in_by_pat_token'])->name('sso.api.sign-in.by_pat_token');
-        });
+        Route::middleware(SsoMiddleware::class)
+            ->prefix('api')
+            ->group(function () {
+                Route::post('/sign-in/key', [SsoApiController::class, 'sign_in_key'])->name('sso.api.sign-in.key');
+            });
 
     });

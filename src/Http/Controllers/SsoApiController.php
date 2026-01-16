@@ -13,7 +13,7 @@ class SsoApiController
      * 获取临时登录URL
      * @return JsonResponse
      */
-    public function sign_in_by_pat_token(Request $request)
+    public function sign_in_key(Request $request)
     {
         $key = Str::orderedUuid()->toString();// 临时登录信息key
         $redirect_to = $request->input('redirect_to');
