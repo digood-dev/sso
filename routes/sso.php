@@ -2,7 +2,7 @@
 
 use Digood\Sso\Http\Controllers\GoController;
 use Digood\Sso\Http\Controllers\SsoApiController;
-use Digood\Sso\Http\Middleware\SsoMiddleware;
+use Digood\Sso\Http\Middleware\SsoApiMiddleware;
 use Illuminate\Support\Facades\Route;
 use Digood\Sso\Http\Controllers\SsoController;
 
@@ -21,7 +21,7 @@ Route::prefix('sso')
         });
 
         // Api层面
-        Route::middleware(SsoMiddleware::class)
+        Route::middleware(SsoApiMiddleware::class)
             ->prefix('api')
             ->group(function () {
                 Route::post('/sign-in/key', [SsoApiController::class, 'sign_in_key'])->name('sso.api.sign-in.key');

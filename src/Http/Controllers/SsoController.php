@@ -9,6 +9,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -82,7 +83,7 @@ class SsoController
     public function sign_in_by_key(Request $request)
     {
         $key = $request->route('key');
-        if (Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
+        if (!Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
         // 按照Key读取用户信息
         $data = Cache::get($key);
@@ -90,7 +91,11 @@ class SsoController
         $redirect_to = $data['redirect_to'] ?? null;
 
         // 读取用户信息
-        $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
+        try {
+            $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
+        } catch (\Exception $e) {
+            return response('获取用户信息失败，请重试', 500);
+        }
 
         $result = Http::withoutVerifying()
             ->connectTimeout(10)

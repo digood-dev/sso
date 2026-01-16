@@ -25,7 +25,7 @@ class SsoApiController
             'url' => route('sso.sign-in.by_key', ['key' => $key]),// 构造前台登录地址
         ];
 
-        return response_success(null, $data);
+        return response_success('success', $data);
     }
 
 }
