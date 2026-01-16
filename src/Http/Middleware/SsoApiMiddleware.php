@@ -11,7 +11,7 @@ class SsoApiMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $tokenKey = 'sso_user_token';
+        $tokenKey = 'sso-user-token';
         if (!$request->headers->has($tokenKey)) return response_error('缺少SSO Token，请重试');
 
         $tokenValue = $request->header($tokenKey);// PAT Token
