@@ -17,7 +17,7 @@ class SsoApiMiddleware
         if (Cache::has($cacheKey)) return $next($request);// 此PAT token已校验通过
 
         try {
-            $access_token = (SsoPatService::class)->getAccessToken($sso_user_token);
+            $access_token = (new SsoPatService())->getAccessToken($sso_user_token);
             if (!empty($access_token)) return $next($request);
 
         } catch (\Exception $e) {
