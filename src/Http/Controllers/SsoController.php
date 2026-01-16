@@ -94,7 +94,7 @@ class SsoController
         // 按照Key读取用户信息
         $data = Cache::get($key);
         $token = Arr::get($data, 'sso_user_token');// 用户的PAT
-        if(empty($token)) return response('用户身份标识不存在或已失效，请重试', 500);
+        if (empty($token)) return response('用户身份标识不存在或已失效，请重试', 500);
 
         // 读取用户信息
         try {
@@ -114,7 +114,13 @@ class SsoController
 
         if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试' . $result->json('error_description'), 500);
 
-        sso_user_setup($result->json());// 手动设置用户信息,注入Session
+        // 手动设置用户信息,
+        $userInfo = array_merge(
+            $result->json(),
+            ['sso_user_token' => $accessToken]
+        );
+
+        sso_user_setup($userInfo);//注入Session
 
         Cache::forget($key);// 删除缓存
 
