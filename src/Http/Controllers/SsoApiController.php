@@ -16,12 +16,13 @@ class SsoApiController
     public function sign_in_by_pat_token(Request $request)
     {
         $key = Str::orderedUuid()->toString();// 临时登录信息key
+        $redirect_to = $request->input('redirect_to');
         $sso_user_token = $request->header('sso_user_token');// PAT Token
 
-        Cache::put($key, ['sso_user_token' => $sso_user_token]);
+        Cache::put($key, ['sso_user_token' => $sso_user_token, 'redirect_to' => $redirect_to], now()->addHour());
 
         $data = [
-            'url' => route('sso.sign-in.pat', ['key' => $key]),//登录地址
+            'url' => route('sso.sign-in.by_key', ['key' => $key]),// 构造前台登录地址
         ];
 
         return response_success(null, $data);

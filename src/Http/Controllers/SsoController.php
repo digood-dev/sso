@@ -2,11 +2,15 @@
 
 namespace Digood\Sso\Http\Controllers;
 
+use Digood\Sso\Services\SsoPatService;
 use Digood\Sso\Services\SsoService;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
@@ -69,13 +73,41 @@ class SsoController
         return response('<h1>账户信息校验失败，请关闭页面重试！</h1>' . implode('', $messages), 500);
     }
 
-    public function sign_in_by_pat(Request $request){
-        // 注入session用户信息
+    /**
+     * 通过临时Key进行登录
+     * @param Request $request
+     * @return ResponseFactory|RedirectResponse|\Illuminate\Http\Response
+     * @throws ConnectionException
+     */
+    public function sign_in_by_key(Request $request)
+    {
         $key = $request->route('key');
+        if (Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
-        // 检查用户信息
+        // 按照Key读取用户信息
         $data = Cache::get($key);
-        $pat_token = $data['sso_user_token'] ?? '';
+        $token = $data['sso_user_token'] ?? null;// 用户的PAT
+        $redirect_to = $data['redirect_to'] ?? null;
+
+        // 读取用户信息
+        $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
+
+        $result = Http::withoutVerifying()
+            ->connectTimeout(10)
+            ->timeout(30)
+            ->asForm()
+            ->withToken($accessToken)
+            ->baseUrl(config('sso.digood.endpoint'))
+            ->get('/oidc/me');
+
+        if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试', 500);
+
+        // 注入Session
+
+
+        if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
+
+        return response()->redirectToRoute('home');// 默认跳转到系统首页
     }
 
     /**
