@@ -84,12 +84,9 @@ class SsoController
         $redirect_to = $request->get('redirect_to');
         $redirect_to_decode = base64_decode($redirect_to);
 
-        // 用户已经登录状态直接跳转
-        if (sso_user_is_signIn()) return empty($redirect_to) ? response()->redirectToRoute('home') : response()->redirectTo($redirect_to_decode);
-
         // 检查临时登录key对应缓存
         $key = $request->route('key');
-        if (!Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
+        if (empty($key) || !Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
         // 按照Key读取用户信息
         $data = Cache::get($key);
