@@ -50,7 +50,7 @@ class SsoPatService
      * @return array|\ArrayAccess|mixed
      * @throws \Exception
      */
-    public function getAccessToken(string $pat_token)
+    public function getAccessToken(string $pat_token): mixed
     {
         $raw = self::getAccessTokenRaw($pat_token);
         return Arr::get($raw, 'access_token');
