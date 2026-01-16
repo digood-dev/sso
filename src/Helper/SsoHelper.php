@@ -11,7 +11,19 @@ if (!function_exists('sso_user_is_signIn')) {
     {
         return (new SsoService())->isSignIn();
     }
+}
 
+if (!function_exists('sso_user_setup')) {
+    /**
+     * 手动设置用户信息
+     * @param array $info
+     * @return void
+     */
+    function sso_user_setup(array $info): void
+    {
+        request()->session()->put('sso_login', true);
+        request()->session()->put('sso_userinfo', $info);
+    }
 }
 
 if (!function_exists('sso_user_info')) {
@@ -78,5 +90,4 @@ if (!function_exists('sso_go_sub_system_url')) {
     {
         return route('sso.go.sub-system', ['redirect_to' => base64_encode($redirect_to), 'name' => $name]);
     }
-
 }

@@ -9,7 +9,6 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -54,8 +53,7 @@ class SsoController
             $userInfo = $this->ssoService->getUserInfo($token);// 直接使用父程序传递的token来获取用户信息
             if (empty($userInfo)) return response('<h1>账户流转失败，请关闭页面重试！</h1>', 500);
 
-            $request->session()->put('sso_login', true);
-            $request->session()->put('sso_userinfo', $userInfo);
+            sso_user_setup($userInfo);// 手动设置用户信息,注入Session
 
             return response()->redirectTo(base64_decode($redirect_to));
 
@@ -93,6 +91,7 @@ class SsoController
         // 读取用户信息
         try {
             $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
+
         } catch (\Exception $e) {
             return response('获取用户信息失败，请重试', 500);
         }
@@ -107,9 +106,9 @@ class SsoController
 
         if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试' . $result->json('error_description'), 500);
 
-        // 注入Session
-        $request->session()->put('sso_login', true);
-        $request->session()->put('sso_userinfo', $result->json());
+        sso_user_setup($result->json());// 手动设置用户信息,注入Session
+
+        Cache::forget($key);// 删除缓存
 
         if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
 

@@ -15,6 +15,7 @@ class SsoServiceProvider extends ServiceProvider
 
         // 加载路由
         $this->loadRoutesFrom(__DIR__ . '/../routes/sso.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
         // 视图
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'digood.sso');
