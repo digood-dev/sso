@@ -22,7 +22,7 @@ class SsoApiController
         Cache::put($key, ['sso_user_token' => $sso_user_token, 'redirect_to' => $redirect_to], now()->addHour());
 
         $data = [
-            'url' => route('sso.sign-in.by_key', ['key' => $key]),// 构造前台登录地址
+            'url' => route('sso.sign-in.by_key', ['key' => $key, 'redirect_to' => base64_encode($redirect_to)]),// 构造前台登录地址
         ];
 
         return response_success('success', $data);

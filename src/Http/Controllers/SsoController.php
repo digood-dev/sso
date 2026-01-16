@@ -9,6 +9,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -80,13 +81,20 @@ class SsoController
      */
     public function sign_in_by_key(Request $request)
     {
+        $redirect_to = $request->get('redirect_to');
+        $redirect_to_decode = base64_decode($redirect_to);
+
+        // 用户已经登录状态直接跳转
+        if (sso_user_is_signIn()) return empty($redirect_to) ? response()->redirectToRoute('home') : response()->redirectTo($redirect_to_decode);
+
+        // 检查临时登录key对应缓存
         $key = $request->route('key');
         if (!Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
         // 按照Key读取用户信息
         $data = Cache::get($key);
-        $token = $data['sso_user_token'] ?? null;// 用户的PAT
-        $redirect_to = $data['redirect_to'] ?? null;
+        $token = Arr::get($data, 'sso_user_token');// 用户的PAT
+        if(empty($token)) return response('用户身份标识不存在或已失效，请重试', 500);
 
         // 读取用户信息
         try {
@@ -110,7 +118,7 @@ class SsoController
 
         Cache::forget($key);// 删除缓存
 
-        if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
+        if (!empty($redirect_to)) return response()->redirectTo($redirect_to_decode);// 跳转到指定页面
 
         return response()->redirectToRoute('home');// 默认跳转到系统首页
     }
