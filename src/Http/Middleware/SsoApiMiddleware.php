@@ -4,27 +4,31 @@ namespace Digood\Sso\Http\Middleware;
 
 use Closure;
 use Digood\Sso\Services\SsoPatService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class SsoApiMiddleware
 {
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $sso_user_token = $request->header('sso_user_token');// PAT Token
-        if (empty($sso_user_token)) return response_error('缺少SSO Token，请重试');
+        $tokenKey = 'sso_user_token';
+        if (!$request->headers->has($tokenKey)) return response_error('缺少SSO Token，请重试');
 
-        $cacheKey = md5($sso_user_token);
+        $tokenValue = $request->header($tokenKey);// PAT Token
+        if (empty($tokenValue)) return response_error('SSO Token值为空');
+
+        $cacheKey = md5($tokenValue);
         if (Cache::has($cacheKey)) return $next($request);// 此PAT token已校验通过
 
         try {
-            $access_token = (new SsoPatService())->getAccessToken($sso_user_token);
-            if (!empty($access_token)) return $next($request);
+            $access_token = (new SsoPatService())->getAccessToken($tokenValue);
+            if (!$access_token) return response_error('SSO用户校验无法完成，请重试！');// 验证失败
 
         } catch (\Exception $e) {
             return response_error('SSO用户校验失败，请重试！', $e->getMessage());
         }
 
-        return response_error('SSO用户校验无法完成，请重试！');
+        return $next($request);
     }
 
 }
