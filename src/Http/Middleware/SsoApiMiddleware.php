@@ -24,6 +24,8 @@ class SsoApiMiddleware
             $access_token = (new SsoPatService())->getAccessToken($tokenValue);
             if (!$access_token) return response_error('SSO用户校验无法完成，请重试！');// 验证失败
 
+            // todo 加上读取用户详情，防止api的控制器里需要使用用户详情
+
             Cache::put($cacheKey, true, now()->addMinutes(30));
 
         } catch (\Exception $e) {
