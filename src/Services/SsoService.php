@@ -151,7 +151,7 @@ class SsoService
      */
     public function getUserId(): string|bool
     {
-        return self::getUserInfo()['id'] ?? false;
+        return self::getUserInfo()['id'] ?? self::getUserInfo()['sub'] ?? false;
     }
 
     /**

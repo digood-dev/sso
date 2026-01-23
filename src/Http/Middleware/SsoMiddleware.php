@@ -26,7 +26,7 @@ class SsoMiddleware
     public function handle(Request $request, Closure $next, ...$roles): mixed
     {
         // 登录校验
-        if (!$this->ssoService->isSignIn()) return Response::redirectToRoute('sso.sign-in');// 跳转到本地SSO登录
+        if (!sso_user_is_signIn()) return Response::redirectToRoute('sso.sign-in');// 跳转到本地SSO登录
 
         if (empty($roles)) return $next($request);// 无需角色校验
 
