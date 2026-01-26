@@ -6,7 +6,8 @@
       "Digood\\Sso\\": "src/"
     },
     "files": [
-      "src/Helper/SsoHelper.php"
+      "src/Helper/SsoHelper.php",
+      "src/Helper/SsoApiHelper.php"
     ]
   },
   "license": "MIT",

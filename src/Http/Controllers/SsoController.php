@@ -84,27 +84,28 @@ class SsoController
     {
         $redirect_to = base64_decode($request->get('redirect_to'));
 
-        // 检查临时登录key对应缓存
+        // 临时登录key
         $key = $request->route('key');
         if (empty($key) || !Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
-        // 按照Key读取用户信息
-        $token = Arr::get(Cache::get($key, []), 'sso_user_token');// 用户的PAT
-        if (empty($token)) return response('用户身份标识不存在或已失效，请重试', 500);
+        // 临时登录Key对应的TOKEN
+        $keyData = Cache::get($key, []);
+        $pat = Arr::get($keyData, 'sso_user_token');// 用户的PAT
+        if (empty($pat)) return response('SSO 用户PAT身份标识不存在或已失效，请重试', 500);
 
         // 读取用户信息
         try {
-            $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
+            $accessToken = sso_api_user_access_token($pat);// PAT换取BearToken
+            if (empty($accessToken)) return response('SSO 用户PAT身份标识验证失败，请重试', 500);
 
             $userInfo = (new SsoService())->getUserInfoByAccessToken($accessToken);
-            if (empty($userInfo)) return response('获取SSO用户信息失败，可能登录标识已失效，请重试', 500);
+            if (empty($userInfo)) return response('SSO 用户信息读取失败，请重试', 500);
 
         } catch (\Exception $e) {
-            return response('获取SSO用户信息失败，请重试', 500);
+            return response('SSO 用户信息失败，请重试', 500);
         }
 
-        // 手动设置用户信息,
-        sso_user_setup(array_merge($userInfo, ['sso_user_token' => $accessToken]));
+        sso_user_setup($userInfo);// 手动设置用户信息到Session
 
         Cache::forget($key);// 删除缓存
 

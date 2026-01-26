@@ -3,15 +3,12 @@
 namespace Digood\Sso\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Logto\Sdk\Constants\DirectSignInMethod;
 use Logto\Sdk\LogtoClient;
 use Logto\Sdk\LogtoConfig;
 use Logto\Sdk\LogtoException;
 use Logto\Sdk\Models\DirectSignInOptions;
-use Logto\Sdk\Models\IdTokenClaims;
 use Logto\Sdk\Oidc\OidcCore;
-use Logto\Sdk\Oidc\UserInfoResponse;
 
 class SsoService
 {
@@ -50,7 +47,17 @@ class SsoService
      */
     public function isSignIn(): bool
     {
-        if (request()->hasSession() && request()->session()->get('sso_login', false)) return true;
+        $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
+
+        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// 模拟登录，使用session
+            return request()->session()->get('sso_login', false);
+
+        } else if (request()->wantsJson() && $isAPIRoute) {// API请求，使用令牌
+            $cacheKey = md5(sso_api_user_pat());
+            if (Cache::has($cacheKey)) return true;// 此PAT token已校验通过
+
+        }
+
         return self::client()->isAuthenticated();
     }
 
@@ -121,10 +128,10 @@ class SsoService
     {
         $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
 
-        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// Web端，使用session
+        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// 模拟登录，使用session
             return request()->session()->get('sso_userinfo');
 
-        } else if (request()->wantsJson() && $isAPIRoute) {// 接口端，使用令牌
+        } else if (request()->wantsJson() && $isAPIRoute) {// API请求，使用令牌
             try {
                 $tmpPAT = request()->header('sso-user-token');
                 $tmpAccessToken = (new SsoPatService())->getAccessToken($tmpPAT);
@@ -133,8 +140,11 @@ class SsoService
                 return false;
             }
 
+        } else if (self::client()->isAuthenticated()) {// 原生登录
+            $info = self::getUserInfoByClaim();// 令牌声明
+
         } else {
-            $info = self::getUserInfoByClaim();// 本地令牌声明
+            return false;
         }
 
         return sso_user_info_makeup($info);
