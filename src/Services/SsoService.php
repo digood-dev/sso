@@ -119,10 +119,12 @@ class SsoService
      */
     public function getUserInfo(): array|bool
     {
-        if (request()->hasSession()) {
+        $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
+
+        if (request()->hasSession() && !$isAPIRoute) {// Web端，使用session
             if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
 
-        } else if (request()->wantsJson()) {// 接口端，检查令牌对应的用户数据
+        } else if (request()->wantsJson() && $isAPIRoute) {// 接口端，使用令牌
             try {
                 $tmpPAT = request()->header('sso-user-token');
                 $tmpAccessToken = (new SsoPatService())->getAccessToken($tmpPAT);
