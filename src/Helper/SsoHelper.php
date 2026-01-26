@@ -13,6 +13,26 @@ if (!function_exists('sso_user_is_signIn')) {
     }
 }
 
+if (!function_exists('sso_user_info_makeup')) {
+    /**
+     * @param array $info
+     * @return array|null[]
+     */
+    function sso_user_info_makeup(array $info): array
+    {
+        return [
+            'id' => $info['sub'] ?? null,
+            'email' => $info['email'] ?? null,
+            'phone' => $info['phone_number'] ?? null,
+            'name' => $info['name'] ?? null,
+            'username' => $info['username'] ?? null,
+            'picture' => $info['picture'] ?? null,
+            'extra' => $info['extra'] ?? null,
+            'roles' => $info['roles'] ?? null,//角色
+        ];
+    }
+}
+
 if (!function_exists('sso_user_setup')) {
     /**
      * 手动设置用户信息

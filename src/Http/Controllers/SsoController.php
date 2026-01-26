@@ -81,47 +81,36 @@ class SsoController
      */
     public function sign_in_by_key(Request $request)
     {
-        $redirect_to = $request->get('redirect_to');
-        $redirect_to_decode = base64_decode($redirect_to);
+        $redirect_to = base64_decode($request->get('redirect_to'));
 
         // 检查临时登录key对应缓存
         $key = $request->route('key');
         if (empty($key) || !Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
 
         // 按照Key读取用户信息
-        $data = Cache::get($key);
-        $token = Arr::get($data, 'sso_user_token');// 用户的PAT
+        $token = Arr::get(Cache::get($key, []), 'sso_user_token');// 用户的PAT
         if (empty($token)) return response('用户身份标识不存在或已失效，请重试', 500);
 
         // 读取用户信息
         try {
             $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
 
+            $userInfo = (new SsoService())->getUserInfoByAccessToken($accessToken);
+            if (empty($userInfo)) return response('获取用户信息失败，可能登录标识已失效，请重试', 500);
+
         } catch (\Exception $e) {
-            return response('获取用户信息失败，请重试', 500);
+            return response('获取SSO用户信息失败，请重试', 500);
         }
 
-        $result = Http::withoutVerifying()
-            ->connectTimeout(10)
-            ->timeout(30)
-            ->asForm()
-            ->withToken($accessToken)
-            ->baseUrl(config('sso.digood.endpoint'))
-            ->get('/oidc/me');
-
-        if ($result->failed()) return response('获取用户信息失败，可能登录标识已失效，请重试' . $result->json('error_description'), 500);
-
         // 手动设置用户信息,
-        $userInfo = array_merge(
-            $result->json(),
-            ['sso_user_token' => $accessToken]
+        sso_user_setup(array_merge($userInfo, [
+                'sso_user_token' => $accessToken
+            ])
         );
-
-        sso_user_setup($userInfo);//注入Session
 
         Cache::forget($key);// 删除缓存
 
-        if (!empty($redirect_to)) return response()->redirectTo($redirect_to_decode);// 跳转到指定页面
+        if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
 
         return response()->redirectToRoute('home');// 默认跳转到系统首页
     }
