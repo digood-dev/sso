@@ -51,7 +51,7 @@ class SsoController
         $redirect_to = $request->get('redirect_to', '/');// 登录成功后需要跳转的地址(base64)
 
         try {
-            $userInfo = $this->ssoService->getUserInfo($token);// 直接使用父程序传递的token来获取用户信息
+            $userInfo = $this->ssoService->getUserInfoByAccessToken($token);// 直接使用父程序传递的token来获取用户信息
             if (empty($userInfo)) return response('<h1>账户流转失败，请关闭页面重试！</h1>', 500);
 
             sso_user_setup($userInfo);// 手动设置用户信息,注入Session

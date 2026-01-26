@@ -12,7 +12,6 @@ class SsoApiMiddleware
     public function handle(Request $request, Closure $next)
     {
         $tokenKey = 'sso-user-token';
-        if (!$request->headers->has($tokenKey)) return response_error('缺少SSO Token，请重试');
 
         $tokenValue = $request->header($tokenKey);// PAT Token
         if (empty($tokenValue)) return response_error('SSO Token值为空');
@@ -21,12 +20,11 @@ class SsoApiMiddleware
         if (Cache::has($cacheKey)) return $next($request);// 此PAT token已校验通过
 
         try {
-            $access_token = (new SsoPatService())->getAccessToken($tokenValue);
-            if (!$access_token) return response_error('SSO用户校验无法完成，请重试！');// 验证失败
+            // 以PAT Token获取Access Token
+            $accessToken = (new SsoPatService())->getAccessToken($tokenValue);
+            if (empty($accessToken)) return response_error('SSO 用户校验失败，请重试！');// 验证失败
 
-            // todo 加上读取用户详情，防止api的控制器里需要使用用户详情
-
-            Cache::put($cacheKey, true, now()->addMinutes(30));
+            Cache::put($cacheKey, true, now()->addMinutes(30));// 缓存Token的验证状态
 
         } catch (\Exception $e) {
             return response_error('SSO用户校验失败，请重试！', $e->getMessage());

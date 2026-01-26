@@ -2,13 +2,16 @@
 
 namespace Digood\Sso\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Logto\Sdk\Constants\DirectSignInMethod;
 use Logto\Sdk\LogtoClient;
 use Logto\Sdk\LogtoConfig;
 use Logto\Sdk\LogtoException;
 use Logto\Sdk\Models\DirectSignInOptions;
+use Logto\Sdk\Models\IdTokenClaims;
 use Logto\Sdk\Oidc\OidcCore;
+use Logto\Sdk\Oidc\UserInfoResponse;
 
 class SsoService
 {
@@ -112,37 +115,53 @@ class SsoService
 
     /**
      * 获取用户信息
-     * @param string|null $accessToken | 留空则读取默认
-     * @return array|false
+     * @return array|bool
      */
-    public function getUserInfo(string|null $accessToken = null): false|array
+    public function getUserInfo(): array|bool
     {
-        if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
+        if (request()->hasSession()) {
+            if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
 
-        try {
-            if (empty($accessToken)) {// 本地用户
-                $info = self::client()->getIdTokenClaims();// 本地令牌声明
-
-            } else {// 指定用户
-                $info = self::getOidcCore()->fetchUserInfo($accessToken);// 实时从端点获取用户信息
+        } else if (request()->wantsJson()) {// 接口端，检查令牌对应的用户数据
+            try {
+                $tmpPAT = request()->header('sso-user-token');
+                $tmpAccessToken = (new SsoPatService())->getAccessToken($tmpPAT);
+                $info = self::getUserInfoByAccessToken($tmpAccessToken);// 拉取SSO用户信息
+            } catch (\Exception $e) {
+                return false;
             }
 
-            $data = [
-                'id' => $info->sub,
-                'email' => $info->email ?? null,
-                'phone' => $info->phone_number ?? null,
-                'name' => $info->name ?? null,
-                'username' => $info->username ?? null,
-                'picture' => $info->picture ?? null,
-                'extra' => $info->extra ?? null,
-                'roles' => $info->roles ?? null,//角色
-            ];
-
-        } catch (LogtoException $e) {
-            Log::error($e->getMessage());
+        } else {
+            $info = self::getUserInfoByClaim();// 本地令牌声明
         }
 
-        return $data ?? false;
+        return [
+            'id' => $info['sub'] ?? null,
+            'email' => $info['email'] ?? null,
+            'phone' => $info['phone_number'] ?? null,
+            'name' => $info['name'] ?? null,
+            'username' => $info['username'] ?? null,
+            'picture' => $info['picture'] ?? null,
+            'extra' => $info['extra'] ?? null,
+            'roles' => $info['roles'] ?? null,//角色
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserInfoByClaim(): array
+    {
+        return self::client()->getIdTokenClaims()->jsonSerialize();// 本地令牌声明
+    }
+
+    /**
+     * @param string $token
+     * @return array
+     */
+    public function getUserInfoByAccessToken(string $token): array
+    {
+        return self::getOidcCore()->fetchUserInfo($token)->jsonSerialize();// 实时从端点获取用户信息
     }
 
     /**
