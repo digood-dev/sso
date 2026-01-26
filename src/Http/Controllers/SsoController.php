@@ -103,10 +103,7 @@ class SsoController
         }
 
         // 手动设置用户信息,
-        sso_user_setup(array_merge($userInfo, [
-                'sso_user_token' => $accessToken
-            ])
-        );
+        sso_user_setup(array_merge($userInfo, ['sso_user_token' => $accessToken]));
 
         Cache::forget($key);// 删除缓存
 

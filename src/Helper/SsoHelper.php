@@ -42,7 +42,7 @@ if (!function_exists('sso_user_setup')) {
     function sso_user_setup(array $info): void
     {
         request()->session()->put('sso_login', true);
-        request()->session()->put('sso_userinfo', $info);
+        request()->session()->put('sso_userinfo', sso_user_info_makeup($info));
     }
 }
 
@@ -61,7 +61,7 @@ if (!function_exists('sso_user_display')) {
     function sso_user_display()
     {
         $userInfo = sso_user_info();
-        return  $userInfo['name'] ?? $userInfo['nickname'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
+        return $userInfo['name'] ?? $userInfo['nickname'] ?? $userInfo['username'] ?? $userInfo['phone'] ?? $userInfo['email'] ?? $userInfo['id'] ?? false;
 
     }
 }
