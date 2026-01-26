@@ -121,8 +121,8 @@ class SsoService
     {
         $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
 
-        if (request()->hasSession() && !$isAPIRoute) {// Web端，使用session
-            if (request()->session()->has('sso_userinfo')) return request()->session()->get('sso_userinfo');
+        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// Web端，使用session
+            return request()->session()->get('sso_userinfo');
 
         } else if (request()->wantsJson() && $isAPIRoute) {// 接口端，使用令牌
             try {
