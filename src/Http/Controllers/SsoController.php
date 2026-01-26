@@ -2,18 +2,16 @@
 
 namespace Digood\Sso\Http\Controllers;
 
-use Digood\Sso\Services\SsoPatService;
 use Digood\Sso\Services\SsoService;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Logto\Sdk\LogtoException;
 
@@ -23,6 +21,16 @@ class SsoController
     public function __construct(protected SsoService $ssoService)
     {
 
+    }
+
+    /**
+     * @return RedirectResponse
+     * @throws \Exception
+     */
+    private function redirectToHome(string $name = 'home')
+    {
+        if (!Route::has($name)) throw new \Exception('未找到系统首页路由，请检查路由配置！');
+        return response()->redirectToRoute($name);// 默认跳转到系统首页
     }
 
     /**
@@ -95,7 +103,7 @@ class SsoController
 
         // 读取用户信息
         try {
-            $accessToken = sso_api_user_access_token($pat);// PAT换取BearToken
+            $accessToken = sso_api_user_access_token($pat);// PAT换取accessToken
             if (empty($accessToken)) return response('SSO 用户PAT身份标识验证失败，请重试', 500);
 
             $userInfo = (new SsoService())->getUserInfoByAccessToken($accessToken);
@@ -105,13 +113,9 @@ class SsoController
             return response('SSO 用户信息失败，请重试', 500);
         }
 
-        sso_user_setup($userInfo);// 手动设置用户信息到Session
+        sso_user_setup($userInfo) && Cache::forget($key);// 植入用户信息到当前会话并删除缓存
 
-        Cache::forget($key);// 删除缓存
-
-        if (!empty($redirect_to)) return response()->redirectTo($redirect_to);// 跳转到指定页面
-
-        return response()->redirectToRoute('home');// 默认跳转到系统首页
+        return empty($redirect_to) ? self::redirectToHome() : response()->redirectTo($redirect_to);//跳转到指定页或首页
     }
 
     /**
@@ -122,11 +126,10 @@ class SsoController
         try {
             $this->ssoService->handleSignIn(); //处理登录回调
 
-            // 检查登录前的访问页面
             $redirect_to = Session::get('redirect_to');// 是否设置的登录后跳转页面
             if (!empty($redirect_to)) {// 登录跳转到登录前访问的页面
                 Session::remove('redirect_to');// 移除登录后跳转页面的配置值
-                return Response::redirectTo($redirect_to);
+                return response()->redirectTo($redirect_to);
             }
 
         } catch (\Exception $e) {
@@ -134,7 +137,7 @@ class SsoController
             throw new \Exception('登录失败，请重试');
         }
 
-        return Response::redirectToRoute('home');
+        return self::redirectToHome();
     }
 
     /**

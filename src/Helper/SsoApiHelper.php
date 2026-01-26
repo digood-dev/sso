@@ -21,7 +21,7 @@ if (!function_exists('sso_api_user_access_token')) {
      */
     function sso_api_user_access_token(string|null $pat = null): mixed
     {
-        $pat = $pat ?? sso_api_user_pat();
+        $pat = $pat ?: sso_api_user_pat();
         return (new SsoPatService())->getAccessToken($pat);
     }
 
