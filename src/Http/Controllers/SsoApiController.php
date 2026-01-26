@@ -4,8 +4,6 @@ namespace Digood\Sso\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class SsoApiController
 {
@@ -15,14 +13,20 @@ class SsoApiController
      */
     public function sign_in_key(Request $request)
     {
-        $key = Str::orderedUuid()->toString();// 临时登录信息key
         $redirect_to = $request->input('redirect_to');
-        $sso_user_token = $request->header('sso_user_token');// PAT Token
 
-        Cache::put($key, ['sso_user_token' => $sso_user_token, 'redirect_to' => $redirect_to], now()->addHour());
+        $data= [
+            'sso_user_token' => sso_api_user_pat(),
+            'redirect_to' => $redirect_to
+        ];
+
+        $params = [
+            'key' => sso_api_set_temporary_sign_in($data),
+            'redirect_to' => base64_encode($redirect_to)
+        ];
 
         $data = [
-            'url' => route('sso.sign-in.by_key', ['key' => $key, 'redirect_to' => base64_encode($redirect_to)]),// 构造前台登录地址
+            'url' => route('sso.sign-in.by_key',$params),// 构造前台登录地址
         ];
 
         return response_success('success', $data);

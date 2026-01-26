@@ -87,18 +87,18 @@ class SsoController
      * 通过临时Key进行登录
      * @param Request $request
      * @return ResponseFactory|RedirectResponse|\Illuminate\Http\Response
+     * @throws \Exception
      */
     public function sign_in_by_key(Request $request)
     {
         $redirect_to = base64_decode($request->get('redirect_to'));
 
         // 临时登录key
-        $key = $request->route('key');
-        if (empty($key) || !Cache::has($key)) return response('临时登录标识不存在或已失效，请重试', 500);
+        $temporary = sso_api_read_temporary_sign_in($request->route('key'));
+        if (!$temporary) return response('临时登录标识不存在或已失效，请重试', 500);
 
-        // 临时登录Key对应的TOKEN
-        $keyData = Cache::get($key, []);
-        $pat = Arr::get($keyData, 'sso_user_token');// 用户的PAT
+        // 取得PAT值
+        $pat = Arr::get($temporary, 'sso_user_token');// 用户的PAT
         if (empty($pat)) return response('SSO 用户PAT身份标识不存在或已失效，请重试', 500);
 
         // 读取用户信息
@@ -113,7 +113,7 @@ class SsoController
             return response('SSO 用户信息失败，请重试', 500);
         }
 
-        sso_user_setup($userInfo) && Cache::forget($key);// 植入用户信息到当前会话并删除缓存
+        sso_user_setup($userInfo);// 植入用户信息到当前会话并删除缓存
 
         return empty($redirect_to) ? self::redirectToHome() : response()->redirectTo($redirect_to);//跳转到指定页或首页
     }
