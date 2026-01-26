@@ -137,16 +137,7 @@ class SsoService
             $info = self::getUserInfoByClaim();// 本地令牌声明
         }
 
-        return [
-            'id' => $info['sub'] ?? null,
-            'email' => $info['email'] ?? null,
-            'phone' => $info['phone_number'] ?? null,
-            'name' => $info['name'] ?? null,
-            'username' => $info['username'] ?? null,
-            'picture' => $info['picture'] ?? null,
-            'extra' => $info['extra'] ?? null,
-            'roles' => $info['roles'] ?? null,//角色
-        ];
+        return sso_user_info_makeup($info);
     }
 
     /**

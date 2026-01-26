@@ -47,8 +47,10 @@ class SsoController
      */
     public function sign_in_by_token(Request $request)
     {
+        $redirect_to = base64_decode($request->get('redirect_to'));// 需要跳转的地址(base64)
+
         $token = $request->route('token');
-        $redirect_to = $request->get('redirect_to', '/');// 登录成功后需要跳转的地址(base64)
+        if (empty($token)) return response('<h1>缺少用户TOKEN值，请关闭页面重试！</h1>', 500);
 
         try {
             $userInfo = $this->ssoService->getUserInfoByAccessToken($token);// 直接使用父程序传递的token来获取用户信息
@@ -56,7 +58,7 @@ class SsoController
 
             sso_user_setup($userInfo);// 手动设置用户信息,注入Session
 
-            return response()->redirectTo(base64_decode($redirect_to));
+            return response()->redirectTo($redirect_to);
 
         } catch (ClientException $e) {
             $res = $e->getResponse()->getBody()->getContents();
@@ -77,7 +79,6 @@ class SsoController
      * 通过临时Key进行登录
      * @param Request $request
      * @return ResponseFactory|RedirectResponse|\Illuminate\Http\Response
-     * @throws ConnectionException
      */
     public function sign_in_by_key(Request $request)
     {
@@ -96,7 +97,7 @@ class SsoController
             $accessToken = (new SsoPatService())->getAccessToken($token);// 用户PAT换取Bear Token
 
             $userInfo = (new SsoService())->getUserInfoByAccessToken($accessToken);
-            if (empty($userInfo)) return response('获取用户信息失败，可能登录标识已失效，请重试', 500);
+            if (empty($userInfo)) return response('获取SSO用户信息失败，可能登录标识已失效，请重试', 500);
 
         } catch (\Exception $e) {
             return response('获取SSO用户信息失败，请重试', 500);
