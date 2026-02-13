@@ -128,17 +128,18 @@ class SsoService
     {
         $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
 
-        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// 模拟登录，使用session
-            return request()->session()->get('sso_userinfo');
-
-        } else if (request()->wantsJson() && $isAPIRoute) {// API请求，使用令牌
+        if ($isAPIRoute) {// API请求，使用令牌
             try {
-                $tmpPAT = request()->header('sso-user-token');
-                $tmpAccessToken = (new SsoPatService())->getAccessToken($tmpPAT);
+                $tmpPersonalToken = sso_api_user_pat();// 用户的个人令牌
+                $tmpAccessToken = (new SsoPatService())->getAccessToken($tmpPersonalToken);// 交换用户会话令牌
+
                 $info = self::getUserInfoByAccessToken($tmpAccessToken);// 拉取SSO用户信息
             } catch (\Exception $e) {
                 return false;
             }
+
+        } else if (request()->hasSession() && request()->session()->has('sso_userinfo')) {// 模拟登录，使用session
+            return request()->session()->get('sso_userinfo');
 
         } else if (self::client()->isAuthenticated()) {// 原生登录
             $info = self::getUserInfoByClaim();// 令牌声明
