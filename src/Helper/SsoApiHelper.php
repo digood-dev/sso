@@ -11,7 +11,9 @@ if (!function_exists('sso_api_user_pat')) {
      */
     function sso_api_user_pat(string $name = 'sso-user-token'): array|string|null
     {
-        return request()->header($name);
+        $bearerToken = request()->bearerToken();// 标准的token值
+        $headerToken = request()->header($name);// 自定义特有的token值
+        return $bearerToken ?? $headerToken ?? null;
     }
 }
 
