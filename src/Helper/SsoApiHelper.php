@@ -44,6 +44,7 @@ if (!function_exists('sso_api_set_temporary_sign_in')) {
 
 if (!function_exists('sso_api_read_temporary_sign_in')) {
     /**
+     * @param string|null $key
      * @return mixed
      */
     function sso_api_read_temporary_sign_in(string|null $key): mixed
