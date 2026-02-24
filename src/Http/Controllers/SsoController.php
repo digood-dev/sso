@@ -8,7 +8,6 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +48,19 @@ class SsoController
     }
 
     /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function sign_in_by_wecom(Request $request){
+        $redirect_to = $request->get('redirect_to');
+        if ($redirect_to) $request->session()->put('redirect_to', $redirect_to);
+
+        $urlCallback = route('sso.sign-in.callback');
+        $urlRedirect = $this->ssoService->getSignInByWeComUrl($urlCallback);
+        return Response::redirectTo($urlRedirect);
+    }
+
+    /**
      * 登录（不透明Token方式）
      * @param Request $request
      * @return mixed
@@ -84,18 +96,19 @@ class SsoController
     }
 
     /**
-     * 通过临时Key进行登录
+     * 通过临时Key进行登录（推荐）
      * @param Request $request
      * @return ResponseFactory|RedirectResponse|\Illuminate\Http\Response
      * @throws \Exception
      */
     public function sign_in_by_key(Request $request)
     {
+        $key = $request->route('key');// 临时登录key（通过api请求当前系统生成返回）
         $redirect_to = base64_decode($request->get('redirect_to'));
 
         // 临时登录key
-        $temporary = sso_api_read_temporary_sign_in($request->route('key'));
-        if (!$temporary) return response('临时登录标识不存在或已失效，请重试', 500);
+        $temporary = sso_api_read_temporary_sign_in($key);// 该临时登录key对应的用户PAT标识
+        if (empty($temporary)) return response('临时登录标识不存在或已失效，请重试', 500);
 
         // 取得PAT值
         $pat = Arr::get($temporary, 'sso_user_token');// 用户的PAT

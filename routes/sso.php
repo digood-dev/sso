@@ -10,6 +10,7 @@ Route::prefix('sso')
     ->group(function () {
         Route::get('/sign-in', [SsoController::class, 'sign_in'])->name('sso.sign-in');
         Route::get('/sign-out', [SsoController::class, 'sign_out'])->name('sso.sign-out');
+        Route::get('/sign-in/by_wecom', [SsoController::class, 'sign_in_by_wecom'])->name('sso.sign-in.by_wecom');// 企业微信扫码登录
         Route::get('/sign-in/by_token/{token}', [SsoController::class, 'sign_in_by_token'])->name('sso.sign-in.by_token');
         Route::get('/sign-in/by_key/{key}', [SsoController::class, 'sign_in_by_key'])->name('sso.sign-in.by_key');// 其它子系统通过token来登录
         Route::get('/sign-in/callback', [SsoController::class, 'sign_in_callback'])->name('sso.sign-in.callback');

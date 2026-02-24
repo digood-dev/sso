@@ -74,7 +74,7 @@ class SsoService
      * @param string|null $callbackUrl
      * @return string
      */
-    public function getSignInUrl(string|null $callbackUrl = null): string
+    public function getSignInUrl(string|null $callbackUrl = null ): string
     {
         if (empty($callbackUrl)) $callbackUrl = route('sso.sign-in.callback');
 
