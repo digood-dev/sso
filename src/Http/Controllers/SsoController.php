@@ -112,18 +112,18 @@ class SsoController
 
         // 取得PAT值
         $pat = Arr::get($temporary, 'sso_user_token');// 用户的PAT
-        if (empty($pat)) return response('SSO 用户PAT身份标识不存在或已失效，请重试', 500);
+        if (empty($pat)) return response('无法找到用户PAT身份标识，请重试', 500);
 
         // 读取用户信息
         try {
             $accessToken = sso_api_user_access_token($pat);// PAT换取accessToken
-            if (empty($accessToken)) return response('SSO 用户PAT身份标识验证失败，请重试', 500);
+            if (empty($accessToken)) return response('用户PAT身份标识验证失败，请重试', 500);
 
             $userInfo = (new SsoService())->getUserInfoByAccessToken($accessToken);
-            if (empty($userInfo)) return response('SSO 用户信息读取失败，请重试', 500);
+            if (empty($userInfo)) return response('用户信息读取失败，请重试', 500);
 
         } catch (\Exception $e) {
-            return response('SSO 用户信息失败，请重试', 500);
+            return response('用户信息异常失败，请重试', 500);
         }
 
         sso_user_setup($userInfo);// 植入用户信息到当前会话并删除缓存

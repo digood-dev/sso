@@ -13,6 +13,7 @@ class SsoApiMiddleware
         $request->headers->set('Accept', 'application/json');// 强制所有入站请求为JSON格式
 
         $pat = sso_api_user_pat();
+
         $cacheKey = md5($pat);
         if (Cache::has($cacheKey)) return $next($request);// 此PAT token已校验通过
 

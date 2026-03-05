@@ -47,15 +47,16 @@ class SsoService
      */
     public function isSignIn(): bool
     {
+        // API请求
         $isAPIRoute = in_array('api', request()->route()->computedMiddleware);
-
-        if (request()->hasSession() && request()->session()->has('sso_userinfo') && !$isAPIRoute) {// 模拟登录，使用session
-            return request()->session()->get('sso_login', false);
-
-        } else if (request()->wantsJson() && $isAPIRoute) {// API请求，使用令牌
-            $cacheKey = md5(sso_api_user_pat());
+        if ($isAPIRoute) {
+            $userTokenApi = sso_api_user_pat();// 用户的API令牌
+            $cacheKey = md5($userTokenApi);
             if (Cache::has($cacheKey)) return true;// 此PAT token已校验通过
+        }
 
+        if (request()->hasSession() && request()->session()->has('sso_userinfo')) {// 模拟登录，使用session
+            return request()->session()->get('sso_login', false);
         }
 
         return self::client()->isAuthenticated();
