@@ -21,7 +21,7 @@ if (!function_exists('sso_user_info_makeup')) {
     function sso_user_info_makeup(array $info): array
     {
         return [
-            'id' => $info['sub'] ?? null,
+            'id' => $info['sub'] ?? $info['id'] ?? null,
             'email' => $info['email'] ?? null,
             'phone' => $info['phone_number'] ?? null,
             'name' => $info['name'] ?? null,
