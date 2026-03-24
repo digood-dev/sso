@@ -51,7 +51,8 @@ class SsoController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function sign_in_by_wecom(Request $request){
+    public function sign_in_by_wecom(Request $request)
+    {
         $redirect_to = $request->get('redirect_to');
         if ($redirect_to) $request->session()->put('redirect_to', $redirect_to);
 
@@ -126,6 +127,7 @@ class SsoController
             return response('用户信息异常失败，请重试', 500);
         }
 
+        // 验证成功
         sso_user_setup($userInfo);// 植入用户信息到当前会话并删除缓存
 
         return empty($redirect_to) ? self::redirectToHome() : response()->redirectTo($redirect_to);//跳转到指定页或首页
@@ -163,15 +165,16 @@ class SsoController
         $urlIndex = route('index');
         $urlSignIn = route('sso.sign-in');
 
-        if (!$this->ssoService->isSignIn()) return Response::redirectTo($urlIndex);// 未登录
+        if (!$this->ssoService->isSignIn()) return Response::redirectTo($urlIndex);// 未登录（SSO默认渠道）
 
-        // 远程SSO退出
-        if ($request->session()->get('sso_login', false)) {
-            $request->session()->remove('sso_login');
-            $request->session()->remove('sso_userinfo');
-            return Response::redirectTo($urlIndex);
-        }
+        // 清除本地会话
+        $request->session()->remove('sso_login');
+        $request->session()->remove('sso_userinfo');
 
+        // 远程SSO方式
+        if ($request->session()->get('sso_login', false)) return Response::redirectTo($urlIndex);
+
+        // 默认的SSO方式
         try {
             $urlRedirect = $this->ssoService->getSignOutUrl($urlIndex);
 

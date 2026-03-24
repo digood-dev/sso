@@ -27,10 +27,14 @@ class SsoMiddleware
     {
         // 登录校验
         if (!sso_user_is_signIn()) return Response::redirectToRoute('sso.sign-in');// 跳转到本地SSO登录
-
         if (empty($roles)) return $next($request);// 无需角色校验
 
-        // 角色校验
+        // 角色循环匹配
+        foreach ($roles as $role) {
+            if ($this->ssoService->isRole($role)) return $next($request);// 角色匹配
+        }
+
+        // 角色权限不足提示
         $msg = implode(PHP_EOL, [
             '<h1>抱歉，你的角色或权限不足！</h1>',
             '<p>开放角色：' . implode(',', $roles) . '</p>',
@@ -40,10 +44,6 @@ class SsoMiddleware
             '<hr>',
             '<a href="' . route('sso.sign-in') . '">刷新</a>',
         ]);
-
-        foreach ($roles as $role) {
-            if ($this->ssoService->isRole($role)) return $next($request);// 角色匹配
-        }
 
         return Response::make($msg, 500);// 权限不足
     }
