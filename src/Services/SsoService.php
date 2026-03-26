@@ -8,6 +8,7 @@ use Logto\Sdk\LogtoClient;
 use Logto\Sdk\LogtoConfig;
 use Logto\Sdk\LogtoException;
 use Logto\Sdk\Models\DirectSignInOptions;
+use Logto\Sdk\Models\IdTokenClaims;
 use Logto\Sdk\Oidc\OidcCore;
 
 class SsoService
@@ -154,10 +155,28 @@ class SsoService
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function getUserInfoByClaim(): array
     {
-        return self::client()->getIdTokenClaims()->jsonSerialize();// 本地令牌声明
+        $payload = explode('.', self::client()->getIdToken())[1] ?? null;
+        if (empty($payload)) throw new \Exception("Invalid Playload data");
+
+        // 解决编码标准不一致的问题： (RFC 4648 §5) 与标准 Base64 (RFC 4648 §4)
+
+        // 1. 替换字符 (- -> +, _ -> /)
+        $data = strtr($payload, '-_', '+/');
+
+        // 2. 补全填充 (=)
+        $mod = strlen($data) % 4;
+        if ($mod > 0) $data .= str_repeat('=', 4 - $mod);
+
+        $payloadDecode = base64_decode($data, true);
+
+        $tokenClaims =  new IdTokenClaims(...json_decode($payloadDecode, true));// 解决中文base64编码问题
+        return $tokenClaims->jsonSerialize();
+
+//        return self::client()->getIdTokenClaims()->jsonSerialize();// 本地令牌声明
     }
 
     /**
